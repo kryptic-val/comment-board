@@ -21,16 +21,10 @@
 
         // Configuration - Set your JSONBin credentials here
         const CONFIG = {
-            JSONBIN_BIN_ID: '', // Add your JSONBin Bin ID here
-            JSONBIN_API_KEY: '', // Add your JSONBin API Key here
+            JSONBIN_BIN_ID: process.env.JSONBIN_BIN_ID, // Add your JSONBin Bin ID here
+            JSONBIN_API_KEY: process.env.JSONBIN_API_KEY, // Add your JSONBin API Key here
             JSONBIN_BASE_URL: 'https://api.jsonbin.io/v3/b'
         };
-
-        // Alternative: Read from environment variables if available (for server deployments)
-        if (typeof process !== 'undefined' && process.env) {
-            CONFIG.JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID || CONFIG.JSONBIN_BIN_ID;
-            CONFIG.JSONBIN_API_KEY = process.env.JSONBIN_API_KEY || CONFIG.JSONBIN_API_KEY;
-        }
 
         const { useState, useEffect } = React;
         
