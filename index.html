@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authenticated Comment Board</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,12 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // Error handling for debugging
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript Error:', e.error);
+            document.body.innerHTML = '<div style="padding: 20px; font-family: Arial;"><h2>Error Loading Page</h2><p>Check console for details</p><pre>' + e.error + '</pre></div>';
+        });
+
         // Configuration - Set your JSONBin credentials here
         const CONFIG = {
             JSONBIN_BIN_ID: '', // Add your JSONBin Bin ID here
@@ -631,7 +637,22 @@ Current Status: ${!CONFIG.JSONBIN_BIN_ID ? '❌ Missing Bin ID' : '✅ Bin ID fo
             );
         };
 
-        ReactDOM.render(<AuthenticatedCommentBoard />, document.getElementById('root'));
+        // Initialize React app with error boundary
+        try {
+            ReactDOM.render(<AuthenticatedCommentBoard />, document.getElementById('root'));
+        } catch (error) {
+            console.error('Failed to render React app:', error);
+            document.getElementById('root').innerHTML = `
+                <div style="padding: 20px; font-family: Arial; text-align: center;">
+                    <h2>Loading Error</h2>
+                    <p>Failed to initialize the application.</p>
+                    <p style="color: red;">${error.message}</p>
+                    <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
