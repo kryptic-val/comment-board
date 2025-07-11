@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Mail, Eye, EyeOff, UserPlus, LogIn, LogOut, Shield, MessageCircle, Send, Clock } from 'lucide-react';
 
+require('dotenv').config();
+
 const AuthenticatedCommentBoard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +38,7 @@ const AuthenticatedCommentBoard = () => {
 
   // JSONBin configuration
   const JSONBIN_BIN_ID = '6871128d3497bd4cad9aed47';
-  const JSONBIN_API_KEY = '$2a$10$2sOqkO6kJcDT2VxEmJA.Ce72OnmrtYiyBUalrFOP3BpPOyF/jzazy';
+  const JSONBIN_API_KEY = process.env.API_KEY;
   const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
 
   // Initialize - check for existing session
