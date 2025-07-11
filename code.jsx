@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Mail, Eye, EyeOff, UserPlus, LogIn, LogOut, Shield, MessageCircle, Send, Clock } from 'lucide-react';
 
-require('dotenv').config();
-
 const AuthenticatedCommentBoard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,9 +34,9 @@ const AuthenticatedCommentBoard = () => {
   ]);
   const [newComment, setNewComment] = useState('');
 
-  // JSONBin configuration
-  const JSONBIN_BIN_ID = '6871128d3497bd4cad9aed47';
-  const JSONBIN_API_KEY = process.env.API_KEY;
+  // JSONBin configuration from environment variables
+  const JSONBIN_BIN_ID = process.env.REACT_APP_JSONBIN_BIN_ID;
+  const JSONBIN_API_KEY = process.env.REACT_APP_JSONBIN_API_KEY;
   const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
 
   // Initialize - check for existing session
@@ -55,6 +53,11 @@ const AuthenticatedCommentBoard = () => {
   };
 
   const fetchUsers = async () => {
+    if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) {
+      console.warn('JSONBin credentials not configured. Using demo mode.');
+      return [];
+    }
+
     try {
       const response = await fetch(`${JSONBIN_BASE_URL}/${JSONBIN_BIN_ID}/latest`, {
         headers: {
@@ -75,6 +78,11 @@ const AuthenticatedCommentBoard = () => {
   };
 
   const saveUsers = async (users) => {
+    if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) {
+      console.warn('JSONBin credentials not configured. Cannot save users.');
+      return false;
+    }
+
     try {
       const response = await fetch(`${JSONBIN_BASE_URL}/${JSONBIN_BIN_ID}`, {
         method: 'PUT',
@@ -123,6 +131,12 @@ const AuthenticatedCommentBoard = () => {
     try {
       const users = await fetchUsers();
       
+      if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) {
+        setError('JSONBin credentials not configured. Please check your environment variables.');
+        setIsLoading(false);
+        return;
+      }
+      
       if (users.find(u => u.email === registerForm.email)) {
         setError('User with this email already exists');
         setIsLoading(false);
@@ -167,6 +181,13 @@ const AuthenticatedCommentBoard = () => {
 
     try {
       const users = await fetchUsers();
+      
+      if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) {
+        setError('JSONBin credentials not configured. Please check your environment variables.');
+        setIsLoading(false);
+        return;
+      }
+      
       const user = users.find(u => 
         u.email === loginForm.email && 
         u.password === hashPassword(loginForm.password)
@@ -246,14 +267,30 @@ const AuthenticatedCommentBoard = () => {
 
   const showDemoInstructions = () => {
     setError('');
-    setSuccess(`
-      Setup Instructions:
-      1. Go to jsonbin.io and create a free account
-      2. Create a new bin with initial data: {"users": []}
-      3. Copy your bin ID and API key
-      4. Replace the placeholder values in the code
-      5. The system will then work with real cloud storage!
-    `);
+    const isConfigured = JSONBIN_BIN_ID && JSONBIN_API_KEY;
+    
+    if (isConfigured) {
+      setSuccess('✅ JSONBin is properly configured! The system is ready for production use.');
+    } else {
+      setSuccess(`
+        🔧 Environment Setup Instructions:
+        
+        1. Create a .env file in your project root:
+           REACT_APP_JSONBIN_BIN_ID=your_bin_id_here
+           REACT_APP_JSONBIN_API_KEY=your_api_key_here
+        
+        2. Get your credentials from jsonbin.io:
+           - Sign up for a free account
+           - Create a new bin with: {"users": []}
+           - Copy your Bin ID and API Key
+        
+        3. Restart your development server
+        
+        4. The system will automatically use cloud storage!
+        
+        Current Status: ${!JSONBIN_BIN_ID ? '❌ Missing Bin ID' : '✅ Bin ID found'} | ${!JSONBIN_API_KEY ? '❌ Missing API Key' : '✅ API Key found'}
+      `);
+    }
   };
 
   // If user is not authenticated, show login/register
